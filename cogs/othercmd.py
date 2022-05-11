@@ -4,7 +4,7 @@ from discord import Interaction, app_commands, Message
 from random import randint
 from utility.utils import defaultEmbed, log
 
-
+#quote_setup 
 class OtherCMDCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -16,7 +16,7 @@ class OtherCMDCog(commands.Cog):
 
     async def cog_unload(self) -> None:
         self.bot.tree.remove_command(self.quote_ctx_menu.name, type=self.quote_ctx_menu.type)
-
+#機率
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author == self.bot.user:
@@ -25,7 +25,7 @@ class OtherCMDCog(commands.Cog):
             print(log(True,False,'Random',message.author.id))
             value = randint(1, 100)
             await message.channel.send(f"{value}%")
-
+#quote_reaction
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         if payload.emoji.name == "QuoteTimeWakuWaku":
@@ -39,7 +39,7 @@ class OtherCMDCog(commands.Cog):
             embed.set_thumbnail(url=str(msg.author.avatar))
             channel = self.bot.get_channel(966549110540877875)
             await channel.send(embed=embed)
-
+#member_join
     @commands.Cog.listener()
     async def on_member_join(self, member):
         public = self.bot.get_channel(916951131022843964)
@@ -54,7 +54,7 @@ class OtherCMDCog(commands.Cog):
             "• 最重要的, 祝你在這裡玩的開心! <:omg:969823101133160538>")
         embed.set_thumbnail(url=member.avatar)
         await public.send(content=f"{member.mention}歡迎來到緣神有你!",embed=embed)
-
+#/ping
     @app_commands.command(
         name='ping',
         description='查看機器人目前延遲'
@@ -62,7 +62,7 @@ class OtherCMDCog(commands.Cog):
     async def ping(self, interaction: discord.Interaction):
         print(log(True, False, 'Ping',interaction.user.id))
         await interaction.response.send_message('🏓 Pong! {0}s'.format(round(self.bot.latency, 1)))
-
+#/cute
     @app_commands.command(
         name='cute',
         description='讓申鶴說某個人很可愛'
@@ -73,7 +73,7 @@ class OtherCMDCog(commands.Cog):
     ):
         print(log(True, False, 'Cute',interaction.user.id))
         await interaction.response.send_message(f"{person}真可愛~❤")
-
+#/say
     @commands.command()
     async def say(self, ctx,msg: str):
         await ctx.message.delete()
@@ -86,7 +86,7 @@ class OtherCMDCog(commands.Cog):
     async def flash(self, interaction: discord.Interaction):
         print(log(True, False, 'Flash',interaction.user.id))
         await interaction.response.send_message("https://media.discordapp.net/attachments/823440627127287839/960177992942891038/IMG_9555.jpg")
-
+#/number
     @app_commands.command(
         name='number',
         description='讓申鶴從兩個數字間挑一個隨機的給你'
@@ -98,7 +98,7 @@ class OtherCMDCog(commands.Cog):
         print(log(True, False, 'Random Number',interaction.user.id))
         value = randint(int(num_one), int(num_two))
         await interaction.response.send_message(str(value))
-
+#/marry
     @app_commands.command(
         name='marry',
         description='結婚 💞'
@@ -109,7 +109,7 @@ class OtherCMDCog(commands.Cog):
     ):
         print(log(True, False, 'Marry',interaction.user.id))
         await interaction.response.send_message(f"{person_one} ❤ {person_two}")
-
+#/getid
     @app_commands.command(
         name='getid',
         description='查看discord ID獲取教學'
@@ -124,7 +124,7 @@ class OtherCMDCog(commands.Cog):
             "4. 右鍵使用者頭像, 便可以看到「copy ID」"
         )
         await interaction.response.send_message(embed=embed)
-
+#!q
     @commands.command(aliases=['q'])
     async def quote(self, ctx):
         print(log(True, False, 'Quote',ctx.author.id))
@@ -135,7 +135,7 @@ class OtherCMDCog(commands.Cog):
         channel = self.bot.get_channel(966549110540877875)
         await ctx.send("✅ 語錄擷取成功", delete_after=3)
         await channel.send(embed=embed)
-
+#/cleanup
     @app_commands.command(
         name='cleanup',
         description='移除此頻道的最近的n個訊息'
@@ -148,12 +148,12 @@ class OtherCMDCog(commands.Cog):
         channel = interaction.channel
         deleted = await channel.purge(limit=int(number))
         await channel.send('🗑️ 已移除 {} 個訊息'.format(len(deleted)), delete_after=3)
-
+#/members
     @app_commands.command(name='members',description='查看目前群組總人數')
     async def members(self, i:Interaction):
         g = i.user.guild
         await i.response.send_message(embed=defaultEmbed('群組總人數',f'目前共 {len(g.members)} 人'))
-
+#quote_done
     async def quote_context_menu(self, i: discord.Interaction, msg: discord.Message) -> None:
         print(log(True, False, 'Quote',i.user.id))
         embed = defaultEmbed(f"語錄",f"「{msg.content}」\n  -{msg.author.mention}\n\n[點我回到該訊息]({msg.jump_url})")
