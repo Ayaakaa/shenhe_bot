@@ -1,7 +1,7 @@
 # 申鶴 Shenhe Bot
 
 <p align="center">
-<img src="https://i.imgur.com/bwWfOJH.png" width="400" height="400" />
+<img src="https://i.imgur.com/bwWfOJH.png" width="600" height="600" />
 </p>
 
 申鶴是小雪團隊為緣神有你 Discord 伺服器所製作的機器人，擁有各項原神相關功能以及其他客製化功能。
