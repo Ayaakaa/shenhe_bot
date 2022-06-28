@@ -4,8 +4,9 @@ import aiosqlite
 from discord import (ButtonStyle, Interaction, Member, SelectOption,
                      app_commands)
 from discord.ext import commands
-from discord.ui import Button, Modal, Select, TextInput, View
-from utility.utils import defaultEmbed
+from discord.ui import Button, Modal, Select, TextInput
+from debug import DefaultView
+from utility.utils import defaultEmbed, errEmbed
 
 
 class Todo(commands.Cog):
@@ -38,11 +39,11 @@ class Todo(commands.Cog):
         desc = ''
         for todo_item in todo_list:
             desc += f'{todo_item}\n'
-        embed = defaultEmbed('代辦事項', desc)
-        embed.set_author(name=user, icon_url=user.avatar)
+        embed = defaultEmbed(message=desc)
+        embed.set_author(name='代辦事項', icon_url=user.avatar)
         return embed
 
-    class TodoListView(View):
+    class TodoListView(DefaultView):
         def __init__(self, db: aiosqlite.Connection, empty: bool, author: Member):
             super().__init__(timeout=None)
             self.db = db
@@ -53,6 +54,8 @@ class Todo(commands.Cog):
             self.add_item(Todo.ClearTodoButton(disabled, db))
 
         async def interaction_check(self, interaction: Interaction) -> bool:
+            if self.author.id != interaction.user.id:
+                await interaction.response.send_message(embed=errEmbed('這不是你的代辦清單','輸入 `/todo` 來開啟一個'), ephemeral=True)
             return self.author.id == interaction.user.id
 
     class AddTodoButton(Button):
@@ -68,10 +71,10 @@ class Todo(commands.Cog):
             await c.execute('SELECT count FROM todo WHERE user_id = ? AND item = ?', (i.user.id, modal.item.value))
             count = await c.fetchone()
             if count is None:
-                await c.execute('INSERT INTO todo (user_id, item, count) VALUES (?, ?, ?)', (i.user.id, modal.item.value, modal.count.value))
+                await c.execute('INSERT INTO todo (user_id, item, count) VALUES (?, ?, ?)', (i.user.id, modal.item.value, int((modal.count.value).replace(',', ''))))
             else:
                 count = count[0]
-                await c.execute('UPDATE todo SET count = ? WHERE user_id = ? AND item = ?', (count+int(modal.count.value), i.user.id, modal.item.value))
+                await c.execute('UPDATE todo SET count = ? WHERE user_id = ? AND item = ?', (count+int((modal.count.value).replace(',', '')), i.user.id, modal.item.value))
             await self.db.commit()
             embed = await Todo.get_todo_embed(self.db, i.user)
             await c.execute('SELECT count FROM todo WHERE user_id = ?', (i.user.id,))
@@ -100,7 +103,8 @@ class Todo(commands.Cog):
             await c.execute('SELECT count FROM todo WHERE user_id = ? AND item = ?', (i.user.id, modal.item.values[0]))
             count = await c.fetchone()
             count = count[0]
-            await c.execute('UPDATE todo SET count = ? WHERE user_id = ? AND item = ?', (count-int(modal.count.value), i.user.id, modal.item.values[0]))
+            modal_count_value = modal.count.value or count
+            await c.execute('UPDATE todo SET count = ? WHERE user_id = ? AND item = ?', (count-int(modal_count_value), i.user.id, modal.item.values[0]))
             await c.execute('DELETE FROM todo WHERE count = 0 AND user_id = ?', (i.user.id,))
             await self.db.commit()
             embed = await Todo.get_todo_embed(self.db, i.user)
@@ -151,7 +155,8 @@ class Todo(commands.Cog):
 
         count = TextInput(
             label='數量',
-            placeholder='例如: 96',
+            placeholder='例如: 28 (如留空則清空該素材)',
+            required=False
         )
 
         def __init__(self, options) -> None:
@@ -161,7 +166,7 @@ class Todo(commands.Cog):
         async def on_submit(self, interaction: Interaction) -> None:
             await interaction.response.defer()
 
-    @app_commands.command(name='todo', description='查看代辦清單')
+    @app_commands.command(name='todo代辦清單', description='查看代辦清單')
     async def todo_list(self, i: Interaction):
         c = await self.bot.db.cursor()
         await c.execute('SELECT count FROM todo WHERE user_id = ?', (i.user.id,))

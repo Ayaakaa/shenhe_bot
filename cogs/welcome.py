@@ -4,10 +4,11 @@ import re
 import aiosqlite
 from discord import ButtonStyle, Interaction, Member, Message, app_commands
 from discord.ext import commands
-from discord.ui import Button, View, button
-from utility.FlowApp import FlowApp
-from utility.GenshinApp import GenshinApp
-from utility.TutorialPaginator import TutorialPaginator
+from discord.ui import Button, button
+from debug import DefaultView
+from utility.apps.FlowApp import FlowApp
+from utility.apps.GenshinApp import GenshinApp
+from utility.paginators.TutorialPaginator import TutorialPaginator
 from utility.utils import defaultEmbed, log
 
 
@@ -80,7 +81,7 @@ class WelcomeCog(commands.Cog):
             embed.set_thumbnail(url=after.avatar)
             await public.send(content=after.mention, embed=embed, view=view)
 
-    class Welcome(View):
+    class Welcome(DefaultView):
         def __init__(self, member: Member):
             self.member = member
             super().__init__(timeout=None)
@@ -105,7 +106,7 @@ class WelcomeCog(commands.Cog):
             embed.set_author(name=i.user.name, icon_url=i.user.avatar)
             await i.response.send_message(embed=embed)
 
-    class AcceptRules(View):
+    class AcceptRules(DefaultView):
         def __init__(self, db: aiosqlite.Connection):
             self.db = db
             super().__init__(timeout=None)
@@ -124,7 +125,7 @@ class WelcomeCog(commands.Cog):
                 return
             await i.response.send_message(embed=embed, view=view, ephemeral=True)
 
-    class StartTutorial(View):
+    class StartTutorial(DefaultView):
         def __init__(self, db: aiosqlite.Connection):
             self.db = db
             super().__init__(timeout=None)
@@ -144,10 +145,10 @@ class WelcomeCog(commands.Cog):
                 '原神系統',
                 '申鶴有許多原神相關的方便功能\n'
                 '`/farm` 今天能刷的原神素材\n'
+                '`/profile` 角色屬性、聖遺物評分、傷害計算'
                 '`/build` 不同角色的配置方式\n'
                 '`/check` 目前樹脂\n'
                 '`/abyss` 深淵數據\n'
-                '`/today` 今天獲得的原石及摩拉數量\n'
                 '`/remind` 樹脂溢出提醒\n'
                 f'有興趣的話, 可以至 {factory.mention} 使用`/cookie`設置帳號'
             )
@@ -157,7 +158,7 @@ class WelcomeCog(commands.Cog):
                 '本群擁有專屬的經濟系統\n'
                 '可以幫助你獲得免費原神月卡等好物\n'
                 '有興趣的話\n'
-                f'可以至使用`/tutorial`指令'
+                f'可以至 {factory.mention} 使用`/tutorial`指令'
             )
             embeds.append(embed)
             role = i.client.get_channel(962311051683192842)
@@ -185,7 +186,7 @@ class WelcomeCog(commands.Cog):
             embeds.append(embed)
             await TutorialPaginator(i, embeds).start(db=self.db, embeded=True)
 
-    @app_commands.command(name='tutorial', description='進行flow幣系統教學')
+    @app_commands.command(name='tutorial使用教學', description='進行flow幣系統教學')
     async def flow_tutorial(self, i: Interaction):
         embeds = []
         embed = defaultEmbed(
@@ -258,11 +259,6 @@ class WelcomeCog(commands.Cog):
         )
         view = WelcomeCog.AcceptRules(self.bot.db)
         await i.response.send_message(content=content, embed=rules, view=view)
-
-    @welcome.error
-    async def err_handle(self, interaction: Interaction, e: app_commands.AppCommandError):
-        if isinstance(e, app_commands.errors.MissingRole):
-            await interaction.response.send_message('你不是小雪團隊的一員!', ephemeral=True)
 
 
 async def setup(bot: commands.Bot) -> None:

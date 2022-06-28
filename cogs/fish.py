@@ -1,16 +1,13 @@
-import asyncio
-import time
 from random import randint
 
 import aiosqlite
-from discord import (ButtonStyle, Interaction, Member, Message, SelectOption, Thread,
-                     app_commands)
+from debug import DefaultView
+from discord import ButtonStyle, Interaction, Thread, app_commands
 from discord.app_commands import Choice
 from discord.ext import commands
-from discord.ui import Button, Select, View, button
-from utility.FlowApp import FlowApp
-from utility.GeneralPaginator import GeneralPaginator
-from utility.utils import ayaakaaEmbed, defaultEmbed
+from discord.ui import Button
+from utility.apps.FlowApp import FlowApp
+from utility.utils import ayaakaaEmbed
 
 
 class FishCog(commands.Cog):
@@ -185,7 +182,7 @@ class FishCog(commands.Cog):
                 else:
                     await interaction.followup.send(f'兔兔逃走了, 沒有摸到flow幣 qwq', ephemeral=True)
 
-    class TouchFish(View):  # 摸魚view
+    class TouchFish(DefaultView):  # 摸魚view
         def __init__(self, index: str, db: aiosqlite.Connection, bot):
             super().__init__(timeout=None)
             self.add_item(FishCog.TouchFishButton(index, db, bot))
@@ -207,7 +204,7 @@ class FishCog(commands.Cog):
             await message.channel.send(embed=self.generate_fish_embed(index), view=touch_fish_view)
 
    # /releasefish
-    @app_commands.command(name='releasefish', description='緊急放出一條魚讓人摸')
+    @app_commands.command(name='releasefish放魚', description='緊急放出一條魚讓人摸')
     @app_commands.rename(fish_type='魚種')
     @app_commands.describe(fish_type='選擇要放出的魚種')
     @app_commands.choices(fish_type=get_fish_choices())
@@ -215,11 +212,6 @@ class FishCog(commands.Cog):
     async def release_fish(self, i: Interaction, fish_type: int):
         touch_fish_view = FishCog.TouchFish(fish_type, self.bot.db, self.bot)
         await i.response.send_message(embed=self.generate_fish_embed(fish_type), view=touch_fish_view)
-
-    @release_fish.error
-    async def err_handle(self, interaction: Interaction, e: app_commands.AppCommandError):
-        if isinstance(e, app_commands.errors.MissingRole):
-            await interaction.response.send_message('你不是小雪團隊的一員!', ephemeral=True)
 
 
 async def setup(bot: commands.Bot) -> None:

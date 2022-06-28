@@ -1,7 +1,8 @@
 import aiosqlite
-from discord import Interaction, Member, VoiceChannel, VoiceState, app_commands
+from discord import Interaction, Member, VoiceChannel, VoiceState, app_commands, InviteTarget
 from discord.ext import commands
 from utility.utils import defaultEmbed, errEmbed
+import wavelink
 
 
 class VoiceChannel(commands.Cog):
@@ -17,6 +18,13 @@ class VoiceChannel(commands.Cog):
         old_channel: VoiceChannel = before.channel
         new_channel: VoiceChannel = after.channel
         c: aiosqlite.Cursor = await self.bot.db.cursor()
+        if new_channel is None and old_channel is not None and len(old_channel.members) == 1 and old_channel.members[0].id == self.bot.user.id:
+            vc: wavelink.Player = member.guild.voice_client
+            vc.queue.clear()
+            await vc.stop()
+            await vc.disconnect()
+        if new_channel is not None:
+            await member.add_roles(vc_role)
         if new_channel == vc:
             member_vc = await member.guild.create_voice_channel(name=f'{member.name}的語音台', category=vc.category)
             await member.move_to(member_vc)
@@ -45,29 +53,27 @@ class VoiceChannel(commands.Cog):
         else:
             return False, errEmbed('<a:error_animated:982579472060547092> 不行', '你不是這個語音台的擁有者')
 
-    @vc.command(name='rename', description='重新命名語音台')
+    @vc.command(name='rename命名', description='重新命名語音台')
     @app_commands.rename(new='新名稱')
     @app_commands.describe(new='新的語音台名稱')
     async def vc_rename(self, i: Interaction, new: str):
         if i.user.voice is None:
-            await i.response.send_message(embed=errEmbed('<a:error_animated:982579472060547092> dame!', '你必須在語音台裡才能用這個指令'), ephemeral=True)
+            return await i.response.send_message(embed=errEmbed('<a:error_animated:982579472060547092> 錯誤', '你必須在語音台裡才能用這個指令'), ephemeral=True)
         current_vc = i.user.voice.channel
         owner, err_msg = await self.check_owner(current_vc.id, i.user.id)
         if not owner:
-            await i.response.send_message(embed=err_msg, ephemeral=True)
-            return
+            return await i.response.send_message(embed=err_msg, ephemeral=True)
         await current_vc.edit(name=new)
         await i.response.send_message(embed=defaultEmbed('<a:check_animated:982579879239352370> 語音台名稱更改成功', f'新名稱: {new}'))
 
-    @vc.command(name='lock', description='鎖上語音台')
+    @vc.command(name='lock鎖上', description='鎖上語音台')
     async def vc_lock(self, i: Interaction):
         if i.user.voice is None:
-            await i.response.send_message(embed=errEmbed('<a:error_animated:982579472060547092> dame!', '你必須在語音台裡才能用這個指令'), ephemeral=True)
+            return await i.response.send_message(embed=errEmbed('<a:error_animated:982579472060547092> 錯誤', '你必須在語音台裡才能用這個指令'), ephemeral=True)
         current_vc = i.user.voice.channel
         owner, err_msg = await self.check_owner(current_vc.id, i.user.id)
         if not owner:
-            await i.response.send_message(embed=err_msg, ephemeral=True)
-            return
+            return await i.response.send_message(embed=err_msg, ephemeral=True)
         for member in current_vc.members:
             await current_vc.set_permissions(member, connect=True)
         traveler = i.guild.get_role(
@@ -75,36 +81,59 @@ class VoiceChannel(commands.Cog):
         await current_vc.set_permissions(traveler, connect=False)
         await i.response.send_message(embed=defaultEmbed(f'<a:check_animated:982579879239352370> {current_vc.name}被鎖上了'))
 
-    @vc.command(name='unlock', description='解鎖語音台')
+    @vc.command(name='unlock解鎖', description='解鎖語音台')
     async def vc_unlock(self, i: Interaction):
         if i.user.voice is None:
-            await i.response.send_message(embed=errEmbed('<a:error_animated:982579472060547092> dame!', '你必須在語音台裡才能用這個指令'), ephemeral=True)
+            return await i.response.send_message(embed=errEmbed('<a:error_animated:982579472060547092> 錯誤', '你必須在語音台裡才能用這個指令'), ephemeral=True)
         current_vc = i.user.voice.channel
         owner, err_msg = await self.check_owner(current_vc.id, i.user.id)
         if not owner:
-            await i.response.send_message(embed=err_msg, ephemeral=True)
-            return
+            return await i.response.send_message(embed=err_msg, ephemeral=True)
         traveler = i.guild.get_role(
             978532779098796042) if not self.bot.debug_toggle else i.guild.default_role
         await current_vc.set_permissions(traveler, connect=True)
-        await i.response.send_message(embed=defaultEmbed(f'<a:penguin_run:978257189686898748> {current_vc.name}的封印被解除了'))
+        await i.response.send_message(embed=defaultEmbed(f'<a:check_animated:982579879239352370> {current_vc.name}的封印被解除了'))
 
-    @vc.command(name='transfer', description='移交房主權')
+    @vc.command(name='transfer移交', description='移交房主權')
     @app_commands.rename(new='新房主')
     @app_commands.describe(new='新的房主')
     async def vc_unlock(self, i: Interaction, new: Member):
         if i.user.voice is None:
-            await i.response.send_message(embed=errEmbed('<a:error_animated:982579472060547092> dame!', '你必須在語音台裡才能用這個指令'), ephemeral=True)
+            return await i.response.send_message(embed=errEmbed('<a:error_animated:982579472060547092> 錯誤', '你必須在語音台裡才能用這個指令'), ephemeral=True)
         current_vc = i.user.voice.channel
         owner, err_msg = await self.check_owner(current_vc.id, i.user.id)
         if not owner:
-            await i.response.send_message(embed=err_msg, ephemeral=True)
-            return
+            return await i.response.send_message(embed=err_msg, ephemeral=True)
         c: aiosqlite.Cursor = await self.bot.db.cursor()
         await c.execute('UPDATE voice SET owner_id = ? WHERE channel_id = ?', (new.id, current_vc.id))
         await self.bot.db.commit()
-        await i.response.send_message(content=f'{i.user.mention} {new.mention}', embed=defaultEmbed(f'<a:penguin_run:978257189686898748> 房主換人啦', f' {i.user.mention} 將 {current_vc.name} 的房主權移交給了 {new.mention}'))
+        await i.response.send_message(content=f'{i.user.mention} {new.mention}', embed=defaultEmbed(f'<a:check_animated:982579879239352370> 房主換人啦', f' {i.user.mention} 將 {current_vc.name} 的房主權移交給了 {new.mention}'))
 
+    @vc.command(name='youtube播放器', description='為當前的語音台創建一個 youtube 播放器')
+    async def vc_activity(self, i: Interaction):
+        if i.user.voice is None:
+            return await i.response.send_message(embed=errEmbed('<a:error_animated:982579472060547092> 錯誤', '你必須在語音台裡才能用這個指令'), ephemeral=True)
+        vc = i.user.voice.channel
+        invite = await vc.create_invite( 
+            max_age=0, 
+            max_uses=0, 
+            target_application_id=880218394199220334,
+            target_type=InviteTarget.embedded_application
+        )
+        await i.response.send_message(embed=defaultEmbed('<a:check_animated:982579879239352370> 播放器已創建',f'{invite}\n\n點擊連結來啟用'), ephemeral=True)
+
+    @vc.command(name='chess西洋棋', description='為當前的語音台創建一個西洋棋遊戲視窗')
+    async def vc_chess(self, i: Interaction):
+        if i.user.voice is None:
+            return await i.response.send_message(embed=errEmbed('<a:error_animated:982579472060547092> 錯誤', '你必須在語音台裡才能用這個指令'), ephemeral=True)
+        vc = i.user.voice.channel
+        invite = await vc.create_invite( 
+            max_age=0, 
+            max_uses=0, 
+            target_application_id=832012774040141894,
+            target_type=InviteTarget.embedded_application
+        )
+        await i.response.send_message(embed=defaultEmbed('<a:check_animated:982579879239352370> 西洋棋遊戲已創建',f'{invite}\n\n點擊連結來啟用'), ephemeral=True)
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(VoiceChannel(bot))

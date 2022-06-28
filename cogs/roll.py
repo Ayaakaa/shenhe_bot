@@ -5,8 +5,9 @@ import discord
 from discord import ButtonStyle, Interaction, app_commands
 from discord.ext import commands
 from discord.ui import Button, button
-from utility.FlowApp import FlowApp
-from utility.RollApp import RollApp
+from debug import DefaultView
+from utility.apps.FlowApp import FlowApp
+from utility.apps.RollApp import RollApp
 from utility.utils import defaultEmbed, errEmbed, log
 
 global one_pull_price
@@ -19,7 +20,7 @@ class RollCog(commands.Cog):
         self.debug_toggle = self.bot.debug_toggle
         self.flow_app = FlowApp(self.bot.db, self.bot)
 
-    class Menu(discord.ui.View):
+    class Menu(DefaultView):
         def __init__(self, author: discord.Member, banner: str, db: aiosqlite.Connection, bot):
             super().__init__(timeout=None)
             self.db = db
@@ -29,6 +30,8 @@ class RollCog(commands.Cog):
             self.bot = bot
 
         async def interaction_check(self, i: Interaction) -> bool:
+            if i.user.id != self.author.id:
+                await i.response.send_message(embed=errEmbed('這不是你的遊戲視窗','輸入 `/roll` 來開啟一個'), ephemeral=True)
             return i.user.id == self.author.id
 
         @button(label='詳情', style=ButtonStyle.gray)
@@ -115,6 +118,8 @@ class RollCog(commands.Cog):
             self.bot = bot
 
         async def interaction_check(self, i: Interaction) -> bool:
+            if i.user.id != self.author.id:
+                await i.response.send_message(embed=errEmbed('這不是你的遊戲視窗','輸入 `/roll` 來開啟一個'), ephemeral=True)
             return i.user.id == self.author.id
 
         @button(label='確認', style=ButtonStyle.green, row=0)
@@ -159,7 +164,7 @@ class RollCog(commands.Cog):
             menu = RollCog.Menu(i.user, self.banner, self.db, self.bot)
             await i.response.edit_message(view=menu)
 
-    @app_commands.command(name='roll', description='flow幣祈願系統')
+    @app_commands.command(name='roll祈願', description='flow幣祈願系統')
     async def roll(self, i: Interaction):
         check, msg = await self.flow_app.checkFlowAccount(i.user.id)
         if check == False:

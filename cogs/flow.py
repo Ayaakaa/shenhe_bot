@@ -6,12 +6,14 @@ from typing import Any, List
 import aiosqlite
 import discord
 from dateutil import parser
+from debug import DefaultView
 from discord import Button, Interaction, Member, SelectOption, app_commands
 from discord.app_commands import Choice
 from discord.ext import commands
-from discord.ui import Select, View
-from utility.FlowApp import FlowApp
+from discord.ui import Select
+from utility.apps.FlowApp import FlowApp
 from utility.utils import defaultEmbed, errEmbed, log
+
 
 
 class FlowCog(commands.Cog):
@@ -77,7 +79,7 @@ class FlowCog(commands.Cog):
                             user_id, 1, time_state='night')
                         await message.add_reaction('<:night:982608497290125366>')
 
-    @app_commands.command(name='acc', description='查看flow帳號')
+    @app_commands.command(name='acc帳號', description='查看flow帳號')
     @app_commands.rename(member='其他人')
     @app_commands.describe(member='查看其他群友的flow帳號')
     async def acc(self, i: Interaction, member: Member = None):
@@ -105,7 +107,7 @@ class FlowCog(commands.Cog):
         embed.set_author(name=member, icon_url=member.avatar)
         await i.response.send_message(embed=embed)
 
-    @app_commands.command(name='give', description='給其他人flow幣')
+    @app_commands.command(name='give給錢', description='給其他人flow幣')
     @app_commands.rename(member='某人', flow='要給予的flow幣數量')
     async def give(self, i: Interaction, member: Member, flow: int):
         log(False, False, 'Give', f'{i.user.id} give {flow} to {member.id}')
@@ -138,7 +140,7 @@ class FlowCog(commands.Cog):
             f"{self.bot.get_user(member.id).mention} **+ {flow}** flow幣")
         await i.response.send_message(content=f'{i.user.mention}{member.mention}', embed=embed)
 
-    @app_commands.command(name='take', description='將某人的flow幣轉回銀行')
+    @app_commands.command(name='take收錢', description='將某人的flow幣轉回銀行')
     @app_commands.rename(member='某人', flow='要拿取的flow幣數量', private='私人訊息')
     @app_commands.choices(private=[
         Choice(name='是', value=0),
@@ -157,12 +159,7 @@ class FlowCog(commands.Cog):
         ephemeral_toggler = True if private == 0 else False
         await i.response.send_message(embed=embed, ephemeral=ephemeral_toggler)
 
-    @take.error
-    async def err_handle(self, i: Interaction, e: app_commands.AppCommandError):
-        if isinstance(e, app_commands.errors.MissingRole):
-            await i.response.send_message('你不是小雪團隊的一員!', ephemeral=True)
-
-    @app_commands.command(name='make', description='從銀行轉出flow幣給某人')
+    @app_commands.command(name='make送錢', description='從銀行轉出flow幣給某人')
     @app_commands.rename(member='某人', flow='要給予的flow幣數量', private='私人訊息')
     @app_commands.choices(private=[
         Choice(name='是', value=0),
@@ -182,12 +179,7 @@ class FlowCog(commands.Cog):
         ephemeral_toggler = True if private == 0 else False
         await i.response.send_message(embed=embed, ephemeral=ephemeral_toggler)
 
-    @make.error
-    async def err_handle(self, i: Interaction, e: app_commands.AppCommandError):
-        if isinstance(e, app_commands.errors.MissingRole):
-            await i.response.send_message('你不是小雪團隊的一員!', ephemeral=True)
-
-    @app_commands.command(name='total', description='查看目前群組帳號及銀行flow幣分配情況')
+    @app_commands.command(name='total總額', description='查看目前群組帳號及銀行flow幣分配情況')
     async def total(self, i: Interaction):
         c: aiosqlite.Cursor = await self.bot.db.cursor()
         await c.execute('SELECT SUM(flow) FROM flow_accounts')
@@ -201,7 +193,7 @@ class FlowCog(commands.Cog):
         )
         await i.response.send_message(embed=embed)
 
-    @app_commands.command(name='flows', description='查看群組內所有flow帳號')
+    @app_commands.command(name='flows所有帳號', description='查看群組內所有flow帳號')
     @app_commands.rename(category='範圍')
     @app_commands.describe(category='選擇要查看的flow幣範圍')
     @app_commands.choices(category=[
@@ -256,7 +248,7 @@ class FlowCog(commands.Cog):
 
     shop = app_commands.Group(name="shop", description="flow商店")
 
-    @shop.command(name='show', description='顯示商店')
+    @shop.command(name='show商店', description='顯示商店')
     async def show(self, i: Interaction):
         c: aiosqlite.Cursor = await self.bot.db.cursor()
         await c.execute('SELECT name, flow, current, max FROM flow_shop')
@@ -267,7 +259,7 @@ class FlowCog(commands.Cog):
         embed = defaultEmbed("🛒 flow商店", item_str)
         await i.response.send_message(embed=embed)
 
-    @shop.command(name='newitem', description='新增商品')
+    @shop.command(name='newitem新增商品', description='新增商品')
     @app_commands.rename(item='商品名稱', flow='價格', max='最大購買次數')
     @app_commands.checks.has_role('小雪團隊')
     async def newitem(self, i: Interaction, item: str, flow: int, max: int):
@@ -277,12 +269,7 @@ class FlowCog(commands.Cog):
         await self.bot.db.commit()
         await i.response.send_message(f"商品**{item}**新增成功", ephemeral=True)
 
-    @newitem.error
-    async def err_handle(self, i: Interaction, e: app_commands.AppCommandError):
-        if isinstance(e, app_commands.errors.MissingRole):
-            await i.response.send_message('你不是小雪團隊的一員!', ephemeral=True)
-
-    class ShopItemView(View):
+    class ShopItemView(DefaultView):
         def __init__(self, item_names: List, action: str, db: aiosqlite.Connection, bot):
             super().__init__(timeout=None)
             self.add_item(FlowCog.ShopItemSelect(item_names, action, db, bot))
@@ -334,7 +321,7 @@ class FlowCog(commands.Cog):
                     f"價格: {flow}")
                 await thread.send(embed=embed)
 
-    @shop.command(name='removeitem', description='刪除商品')
+    @shop.command(name='removeitem移除商品', description='刪除商品')
     @app_commands.checks.has_role('小雪團隊')
     async def removeitem(self, i: Interaction):
         c: aiosqlite.Cursor = await self.bot.db.cursor()
@@ -347,12 +334,7 @@ class FlowCog(commands.Cog):
             item_names, 'remove', self.bot.db, self.bot)
         await i.response.send_message(view=view, ephemeral=True)
 
-    @removeitem.error
-    async def err_handle(self, i: Interaction, e: app_commands.AppCommandError):
-        if isinstance(e, app_commands.errors.MissingRole):
-            await i.response.send_message('你不是小雪團隊的一員!', ephemeral=True)
-
-    @shop.command(name='buy', description='購買商品')
+    @shop.command(name='buy購買', description='購買商品')
     async def buy(self, i: Interaction):
         log(False, False, 'shop buy', i.user.id)
         check, msg = await self.flow_app.checkFlowAccount(i.user.id)
@@ -389,7 +371,7 @@ class FlowCog(commands.Cog):
         else:
             return True, None
 
-    class AcceptView(discord.ui.View):
+    class AcceptView(DefaultView):
         def __init__(self, db: aiosqlite.Connection, bot):
             super().__init__(timeout=None)
             self.db = db
@@ -400,6 +382,8 @@ class FlowCog(commands.Cog):
             await c.execute('SELECT author_id FROM find WHERE msg_id = ?', (i.message.id,))
             author_id = await c.fetchone()
             author_id = author_id[0]
+            if i.user.id == author_id:
+                await i.response.send_message(embed=errEmbed('不能自己接自己的委託'), ephemeral=True)
             return i.user.id != author_id
 
         @discord.ui.button(label='接受委託', style=discord.ButtonStyle.green, custom_id='accept_commision_button')
@@ -441,7 +425,7 @@ class FlowCog(commands.Cog):
             await c.execute('UPDATE find SET msg_id = ?, confirmer_id = ? WHERE msg_ID = ?', (confirm_message.id, i.user.id, i.message.id))
             await self.db.commit()
 
-    class ConfirmView(discord.ui.View):
+    class ConfirmView(DefaultView):
         def __init__(self, db: aiosqlite.Connection, bot: commands.Bot):
             self.db = db
             self.flow_app = FlowApp(self.db, bot)
@@ -475,6 +459,8 @@ class FlowCog(commands.Cog):
             author_free_trial = result[0]
             await c.execute('SELECT find_free_trial FROM flow_accounts WHERE user_id = ?', (confirmer_id,))
             result = await c.fetchone()
+            if result is None:
+                await self.flow_app.register(confirmer_id)
             confirmer_free_trial = result[0]
             if type == 4:
                 new_flow = flow
@@ -510,7 +496,7 @@ class FlowCog(commands.Cog):
             await c.execute('DELETE FROM find WHERE msg_id = ?', (i.message.id,))
             await self.db.commit()
 
-    @app_commands.command(name='find', description='發布委託')
+    @app_commands.command(name='find發布委託', description='發布委託')
     @app_commands.rename(type='委託類型', title='幫助名稱', flow='flow幣數量', tag='tag人開關')
     @app_commands.describe(title='需要什麼幫助?', flow='這個幫助值多少flow幣?', tag='是否要tag委託通知?')
     @app_commands.choices(type=[

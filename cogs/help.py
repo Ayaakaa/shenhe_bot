@@ -1,37 +1,34 @@
-import discord
-from discord import SelectOption, app_commands
+from discord.ui import Select
+from discord import SelectOption, app_commands, Interaction
 from discord.ext import commands
+from debug import DefaultView
 from utility.utils import defaultEmbed
 
 
-class Dropdown(discord.ui.Select):
+class Dropdown(Select):
     def __init__(self):
         options = [
-            SelectOption(label='原神資料', description='需先/cookie註冊帳號後方可使用', emoji='✨'),
+            SelectOption(label='原神(註冊專屬功能)', description='需先/cookie註冊帳號後方可使用', emoji='✨'),
             SelectOption(label='原神', description='不須註冊帳號即可使用', emoji='🌟'),
-            SelectOption(label='原神祈願', description='需註冊+設置祈願紀錄', emoji='🌠'),
+            SelectOption(label='原神祈願(需註冊)', description='需註冊+設置祈願紀錄', emoji='🌠'),
             SelectOption(label='呼叫相關', description='呼叫群友', emoji='🔉'),
             SelectOption(label='flow系統', description='交易方式, 發布委託等', emoji='🌊'),
             SelectOption(label='其他', description='其他指令', emoji='🙂'),
             SelectOption(label='語音台', description='語音台相關指令', emoji='🎙️'),
+            SelectOption(label='音樂系統', description='音樂系統相關指令', emoji='🎵'),
         ]
         super().__init__(placeholder='你想要什麼樣的幫助呢?',
                          min_values=1, max_values=1, options=options)
 
-    async def callback(self, interaction: discord.Interaction):
-        if self.values[0] == '原神資料':
+    async def callback(self, interaction: Interaction):
+        if self.values[0] == '原神(註冊專屬功能)':
             embed = defaultEmbed(
-                '原神資料相關',
-                '需要使用/cookie來設定帳號'
+                '原神相關',
+                '需要使用 `/cookie` 來設定帳號'
             )
             embed.add_field(
                 name='`/cookie`',
                 value='設定原神帳號',
-                inline=False
-            )
-            embed.add_field(
-                name='`/setuid`',
-                value='設置原神UID',
                 inline=False
             )
             embed.add_field(
@@ -65,18 +62,8 @@ class Dropdown(discord.ui.Select):
                 inline=False
             )
             embed.add_field(
-                name='`/today`',
-                value='查看今日原石與摩拉收入',
-                inline=False
-            )
-            embed.add_field(
                 name='`/abyss`',
                 value='查看深境螺旋資料',
-                inline=False
-            )
-            embed.add_field(
-                name='`/characters`',
-                value='查看已擁有角色資訊',
                 inline=False
             )
             embed.add_field(
@@ -85,12 +72,17 @@ class Dropdown(discord.ui.Select):
                 inline=False
             )
             embed.add_field(
-                name='`/remind`',
+                name='`/remind 樹脂提醒`',
                 value='設置樹脂提醒功能',
                 inline=False
             )
+            embed.add_field(
+                name='`/redeem`',
+                value='兌換禮物碼',
+                inline=False
+            )
         elif self.values[0] == '原神':
-            embed = defaultEmbed('原神相關')
+            embed = defaultEmbed('原神相關','不須註冊即可使用')
             embed.add_field(
                 name='`/farm`',
                 value='查看原神今日可刷素材',
@@ -99,11 +91,6 @@ class Dropdown(discord.ui.Select):
             embed.add_field(
                 name='`/build`',
                 value='查看角色推薦主詞條、畢業面板、不同配置等',
-                inline=False
-            )
-            embed.add_field(
-                name='`/rate`',
-                value='(僅供參考用)非常不穩定的聖遺物評分器',
                 inline=False
             )
             embed.add_field(
@@ -121,11 +108,16 @@ class Dropdown(discord.ui.Select):
                 value='透過 enka API 查看各式原神數據',
                 inline=False
             )
+            embed.add_field(
+                name='/remind 天賦素材提醒',
+                value='設置角色天賦素材提醒',
+                inline=False
+            )
 
         elif self.values[0] == '原神祈願':
             embed = defaultEmbed(
                 '原神祈願',
-                '需要使用`/cookie`設定帳號\n加上`/wish setkey`設定紀錄')
+                '需要使用 `/cookie` 設定帳號\n加上 `/wish setkey` 設定紀錄')
             embed.add_field(
                 name='`/wish setkey`',
                 value='設置祈願紀錄',
@@ -265,37 +257,89 @@ class Dropdown(discord.ui.Select):
                 value='查看身份組總人數',
                 inline=False
             )
-            embed.add_field(
-                name='`/say`',
-                value='讓申鶴幫你說話',
-                inline=False
-            )
         elif self.values[0] == '語音台':
             embed = defaultEmbed('語音台指令')
             embed.add_field(
-                name='/vc rename',
+                name='`/vc rename`',
                 value='重新命名語音台',
                 inline=False
             )
             embed.add_field(
-                name='/vc lock',
+                name='`/vc lock`',
                 value='鎖上語音台',
                 inline=False
             )
             embed.add_field(
-                name='/vc unlock',
+                name='`/vc unlock`',
                 value='解鎖語音台',
                 inline=False
             )
             embed.add_field(
-                name='/vc transfer',
+                name='`/vc transfer`',
                 value='移交房主權',
+                inline=False
+            )
+            embed.add_field(
+                name='`/vc youtube`',
+                value='為當前的語音台創建一個 youtube 播放器',
+                inline=False
+            )
+            embed.add_field(
+                name='`/vc chess`',
+                value='為當前的語音台創建一個西洋棋遊戲',
+                inline=False
+            )
+        elif self.values[0] == '音樂系統':
+            embed = defaultEmbed('音樂系統指令')
+            embed.add_field(
+                name='`/play`',
+                value='播放音樂',
+                inline=False
+            )
+            embed.add_field(
+                name='`/stop`',
+                value='停止播放器並清除待播放清單',
+                inline=False
+            )
+            embed.add_field(
+                name='`/pause`',
+                value='暫停播放器',
+                inline=False
+            )
+            embed.add_field(
+                name='`/resume`',
+                value='取消暫停',
+                inline=False
+            )
+            embed.add_field(
+                name='`/disconnect`',
+                value='讓申鶴悄悄的離開目前所在的語音台',
+                inline=False
+            )
+            embed.add_field(
+                name='`/player`',
+                value='查看目前播放狀況',
+                inline=False
+            )
+            embed.add_field(
+                name='`/queue`',
+                value='查看目前待播放清單',
+                inline=False
+            )
+            embed.add_field(
+                name='`/skip`',
+                value='跳過目前正在播放的歌曲',
+                inline=False
+            )
+            embed.add_field(
+                name='`/clear`',
+                value='清除目前的待播放清單',
                 inline=False
             )
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
-class DropdownView(discord.ui.View):
+class DropdownView(DefaultView):
     def __init__(self):
         super().__init__()
         self.add_item(Dropdown())
@@ -305,8 +349,8 @@ class HelpCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name='help', description='獲得幫助')
-    async def help(self, interaction: discord.Interaction):
+    @app_commands.command(name='help幫助', description='獲得幫助')
+    async def help(self, interaction: Interaction):
         view = DropdownView()
         await interaction.response.send_message(view=view)
 

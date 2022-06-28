@@ -6,8 +6,9 @@ import discord
 from discord import Interaction, Message, Role, SelectOption, app_commands
 from discord.app_commands import Choice
 from discord.ext import commands
-from discord.ui import Select, View
-from utility.FlowApp import FlowApp
+from discord.ui import Select
+from debug import DefaultView
+from utility.apps.FlowApp import FlowApp
 from utility.utils import defaultEmbed, errEmbed, log
 
 
@@ -18,7 +19,7 @@ class GiveAwayCog(commands.Cog):
         self.debug_toggle = self.bot.debug_toggle
         self.gv_channel_id = 965517075508498452 if not self.debug_toggle else 909595117952856084
 
-    @app_commands.command(name='giveaway', description='設置抽獎')
+    @app_commands.command(name='giveaway設置抽獎', description='設置抽獎')
     @app_commands.checks.has_role('小雪團隊')
     @app_commands.rename(prize='獎品', goal='目標', ticket='參與金額', role='指定國籍', refund_mode='退款模式')
     @app_commands.describe(
@@ -56,12 +57,7 @@ class GiveAwayCog(commands.Cog):
             await channel.send(role.mention)
         await self.bot.db.commit()
 
-    @create_giveaway.error
-    async def err_handle(self, i: Interaction, e: app_commands.AppCommandError):
-        if isinstance(e, app_commands.errors.MissingRole):
-            await i.response.send_message('你不是小雪團隊的一員!', ephemeral=True)
-
-    class GiveAwayView(View):
+    class GiveAwayView(DefaultView):
         def __init__(self, db: aiosqlite.Connection, bot, i: Interaction = None):
             self.db = db
             self.interaction = i
@@ -215,7 +211,7 @@ class GiveAwayCog(commands.Cog):
             await interaction.response.send_message(embed=defaultEmbed(f'<a:check_animated:982579879239352370> 退出抽獎成功', f'你的flow幣 {-int(ticket[0])}'), ephemeral=True)
             await self.update_gv_msg(msg.id, interaction)
 
-    class GiveawayDropdownView(View):
+    class GiveawayDropdownView(DefaultView):
         def __init__(self, giveaways: dict, db: aiosqlite.Connection):
             super().__init__(timeout=None)
             self.add_item(GiveAwayCog.GiveawayDropdown(giveaways, db))
@@ -238,7 +234,7 @@ class GiveAwayCog(commands.Cog):
             await i.response.defer()
             self.view.stop()
 
-    @app_commands.command(name='endgiveaway', description='強制結束抽獎並選出得獎者')
+    @app_commands.command(name='endgiveaway結束抽獎', description='強制結束抽獎並選出得獎者')
     @app_commands.checks.has_role('小雪團隊')
     async def end_giveaway(self, i: Interaction):
         c: aiosqlite.Cursor = await self.bot.db.cursor()
@@ -262,11 +258,6 @@ class GiveAwayCog(commands.Cog):
         await c.execute('UPDATE giveaway SET current = ? WHERE msg_id = ?', (goal, int(view.value)))
         await self.bot.db.commit()
         await self.GiveAwayView.check_gv_finish(self, view.value, i)
-
-    @end_giveaway.error
-    async def err_handle(self, interaction: Interaction, e: app_commands.AppCommandError):
-        if isinstance(e, app_commands.errors.MissingRole):
-            await interaction.response.send_message('你不是小雪團隊的一員!', ephemeral=True)
 
 
 async def setup(bot: commands.Bot) -> None:
