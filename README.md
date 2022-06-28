@@ -1,4 +1,4 @@
-! (https://imgur.com/bwWfOJH)
+![](https://imgur.com/bwWfOJH)
 
 # 申鶴 Shenhe Bot
 
