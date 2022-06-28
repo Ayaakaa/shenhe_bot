@@ -16,7 +16,7 @@ Shenhe is a bot created by Seria Studios for the discord server 緣神有你, it
 
  - 小雪 Seria
  - 綾霞 Ayaakaa
- - 律律R	LuLuR
+ - 律律R LuLuR
  - 檸檬奶茶 Lemonmilktea
 
 
