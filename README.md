@@ -15,7 +15,9 @@ Shenhe is a bot created by Seria Studios for the discord server 緣神有你, it
 </p>
 
 @seriaati
+
 @Ayaakaa
+
 @Lemonmilkte
 ## Huge thank you to:
 - https://github.com/KT-Yeh/Genshin-Discord-Bot/tree/discord.py_v2.0
