@@ -1,6 +1,6 @@
 ! (https://imgur.com/bwWfOJH)
 
-# 申鶴 Shenhe
+# 申鶴 Shenhe Bot
 
 申鶴是小雪團隊為緣神有你 Discord 伺服器所製作的機器人，擁有各項原神相關功能以及其他客製化功能。
 
