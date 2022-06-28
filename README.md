@@ -11,7 +11,7 @@ Shenhe is a bot created by Seria Studios for the discord server 緣神有你, it
 ## Seria Studios
 
 <p align="center">
-<img src="https://i.imgur.com/j2RCDKr.png" width="430" height="430" />
+<img src="https://i.imgur.com/j2RCDKr.png" width="360" height="360" />
 </p>
 
 [小雪 Seria](https://github.com/seriaati)
