@@ -30,7 +30,7 @@ Shenhe is a bot created by Seria Studios for the discord server 緣神有你, it
  
      > 贊助人／企劃／策劃
 
-     > Sponser／Planner／Organizer
+     > Sponsor／Planner／Organizer
 
  - **檸檬奶茶 Lemonmilktea**
      > 企劃
