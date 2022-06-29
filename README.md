@@ -15,8 +15,8 @@ Shenhe is a bot created by Seria Studios for the discord server 緣神有你, it
 </p>
 
  - 小雪 Seria
-  > 創辦人／首席程式設計員／首席程式開發員／首席企劃／策劃
-  > Founder／Head of Program Design／Head of Program Development／Head of Organizing／Planner
+     > 創辦人／首席程式設計員／首席程式開發員／首席企劃／策劃
+     > Founder／Head of Program Design／Head of Program Development／Head of Organizing／Planner
 
  - 綾霞 Ayaakaa             共同創辦人／首席設計師／首席策劃／程式開發員    Co-Founder／Head of Design／Head of Planning／Program Developer
 
