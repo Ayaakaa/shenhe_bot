@@ -1,6 +1,6 @@
-<p align="center">
+<a align="center">
 # 申鶴 • Shenhe Bot
-</p>
+</a>
 
 <p align="center">
 <img src="https://i.imgur.com/bwWfOJH.png" width="430" height="430" />
