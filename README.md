@@ -1,6 +1,5 @@
-
 <p align="center">
-<# 申鶴 • Shenhe Bot />
+# 申鶴 • Shenhe Bot
 </p>
 
 <p align="center">
