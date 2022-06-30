@@ -4,7 +4,7 @@
 <img src="https://i.imgur.com/bwWfOJH.png" width="430" height="430" />
 </p>
 
-<p align="left">
+<p align="center">
 申鶴是小雪團隊為緣神有你 Discord 伺服器所製作的機器人，擁有各項原神相關功能以及其他客製化功能。
 </p>
 
