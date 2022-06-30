@@ -10,7 +10,7 @@
 
 <p align="center">
 Shenhe is a bot created by Seria Studios for the discord server 緣神有你, it has all sorts of features for 
-    Genshin Impact and also included other customised features.
+Genshin Impact and also included other customised features.
 </p>
 
 <h2 align="center">小雪團隊 • Seria Studios</h2>
@@ -19,6 +19,7 @@ Shenhe is a bot created by Seria Studios for the discord server 緣神有你, it
 <img src="https://i.imgur.com/j2RCDKr.png" width="300" height="300" />
 </p>
 
+<p align="center">
  - **小雪 Seria**
 
      > 創辦人／首席程式設計員／首席程式開發員／首席企劃／策劃
@@ -41,6 +42,7 @@ Shenhe is a bot created by Seria Studios for the discord server 緣神有你, it
      > 企劃
 
      > Planner
+</p>
 
 <h2 align="center">致謝 • Acknowledgements</h2> 
 
