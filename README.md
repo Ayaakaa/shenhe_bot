@@ -13,7 +13,7 @@ Shenhe is a bot created by Seria Studios for the discord server 緣神有你, it
 Genshin Impact and also included other customised features.
 </p>
 
-<h1 align="center"></h1>
+<h1 align="center">- • -</h1>
 
 <h2 align="center">小雪團隊 • Seria Studios</h2>
 
