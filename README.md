@@ -9,9 +9,7 @@
 </p>
 
 <p align="center">
-Shenhe is a bot created by Seria Studios for the discord server 緣神有你, it has all sorts of features for
-
-Genshin Impact and also included other customised features.
+Shenhe is a bot created by Seria Studios for the discord server 緣神有你, it has all sorts of features for \n Genshin Impact and also included other customised features.
 </p>
 
 <h2 align="center">小雪團隊 • Seria Studios</h2>
