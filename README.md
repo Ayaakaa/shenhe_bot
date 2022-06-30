@@ -20,11 +20,14 @@ Genshin Impact and also included other customised features.
 </p>
 
 <p align="center">
+
  - **小雪 Seria**
 
      > 創辦人／首席程式設計員／首席程式開發員／首席企劃／策劃
 
      > Founder／Head of Program Design／Head of Program Development／Head of Organizing／Planner
+     
+</p>
 
  - **綾霞 Ayaakaa**
  
@@ -42,7 +45,7 @@ Genshin Impact and also included other customised features.
      > 企劃
 
      > Planner
-</p>
+
 
 <h2 align="center">致謝 • Acknowledgements</h2> 
 
